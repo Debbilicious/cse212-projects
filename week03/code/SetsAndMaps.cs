@@ -22,8 +22,33 @@ public static class SetsAndMaps
     public static string[] FindPairs(string[] words)
     {
         // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        // Create a set for fast lookups
+    HashSet<string> wordSet = new HashSet<string>(words);
+    List<string> result = new List<string>();
+
+    foreach (string word in words)
+    {
+        // Skip words like "aa"
+        if (word[0] == word[1])
+            continue;
+
+        // Reverse the word
+        string reversed = $"{word[1]}{word[0]}";
+
+        // Check if the reversed word exists in the set
+        if (wordSet.Contains(reversed))
+        {
+            // Avoid duplicates: only add if original < reversed alphabetically
+            if (string.Compare(word, reversed) < 0)
+            {
+                result.Add($"{word} & {reversed}");
+            }
+        }
     }
+
+    return result.ToArray();
+}
+    
 
     /// <summary>
     /// Read a census file and summarize the degrees (education)
@@ -37,16 +62,33 @@ public static class SetsAndMaps
     /// <param name="filename">The name of the file to read</param>
     /// <returns>fixed array of divisors</returns>
     public static Dictionary<string, int> SummarizeDegrees(string filename)
-    {
-        var degrees = new Dictionary<string, int>();
-        foreach (var line in File.ReadLines(filename))
-        {
-            var fields = line.Split(",");
-            // TODO Problem 2 - ADD YOUR CODE HERE
-        }
+{
+    var degrees = new Dictionary<string, int>();
 
-        return degrees;
+    foreach (var line in File.ReadLines(filename))
+    {
+        var fields = line.Split(",");
+        // TO DO Problem 2 - ADD YOUR CODE HERE
+
+        // Skip empty or malformed lines
+        if (fields.Length < 4)
+            continue;
+
+        // Get the degree from the 4th column and trim spaces
+        string degree = fields[3].Trim();
+
+        if (degrees.ContainsKey(degree))
+        {
+            degrees[degree]++;
+        }
+        else
+        {
+            degrees[degree] = 1;
+        }
     }
+
+    return degrees;
+}
 
     /// <summary>
     /// Determine if 'word1' and 'word2' are anagrams.  An anagram
@@ -65,10 +107,37 @@ public static class SetsAndMaps
     /// using the [] notation.
     /// </summary>
     public static bool IsAnagram(string word1, string word2)
-    {
-        // TODO Problem 3 - ADD YOUR CODE HERE
+{
+    // TODO Problem 3 - ADD YOUR CODE HERE
+    // Normalize: remove spaces and convert to lowercase
+    word1 = word1.Replace(" ", "").ToLower();
+    word2 = word2.Replace(" ", "").ToLower();
+
+    // Quick length check
+    if (word1.Length != word2.Length)
         return false;
+
+    // Count letters in word1
+    var letterCounts = new Dictionary<char, int>();
+    foreach (char c in word1)
+    {
+        if (letterCounts.ContainsKey(c))
+            letterCounts[c]++;
+        else
+            letterCounts[c] = 1;
     }
+
+    // Check letters in word2
+    foreach (char c in word2)
+    {
+        if (!letterCounts.ContainsKey(c) || letterCounts[c] == 0)
+            return false;
+        letterCounts[c]--;
+    }
+
+    // All counts should be zero
+    return true;
+}
 
     /// <summary>
     /// This function will read JSON (Javascript Object Notation) data from the 
@@ -101,6 +170,19 @@ public static class SetsAndMaps
         // on those classes so that the call to Deserialize above works properly.
         // 2. Add code below to create a string out each place a earthquake has happened today and its magitude.
         // 3. Return an array of these string descriptions.
-        return [];
+       var descriptions = new List<string>();
+
+foreach (var feature in featureCollection.Features)
+{
+    string place = feature.Properties.Place;
+
+    if (feature.Properties.Mag != null)
+    {
+        double mag = feature.Properties.Mag.Value;
+        descriptions.Add($"{place} - Mag {mag}");
+    }
+}
+
+return descriptions.ToArray();
     }
 }
